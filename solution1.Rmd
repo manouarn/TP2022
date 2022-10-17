@@ -1,0 +1,145 @@
+---
+title: "R Notebook"
+output:
+  html_document: null
+  df_print: paged
+  pdf_document: default
+  word_document: default
+  html_notebook: default
+---
+
+$\textbf{Read Data, train and test}$
+```{r}
+  library(ggplot2)
+  #1.********************Logistic regression model for data************************************************************
+  data <- read.csv(file = '/home/anouar/TP.ADD/data/data.csv')
+  train <- read.csv(file = '/home/anouar/TP.ADD/data/train.csv')
+  test <- read.csv(file = '/home/anouar/TP.ADD/data/test.csv')
+```
+
+
+
+
+```{r}
+ #plot data 
+#Convert y into factor type in data,train and test to ignore the #problem of continious data
+#Convert y into factor type in data,train and test to ignore the problem of continious data
+  
+data$y=as.factor(data$y)
+train$y=as.factor(train$y)
+test$y=as.factor(test$y)
+ggplot(data, aes(x=X0, y=X1, group=y)) + geom_point(aes(shape=y, color=y))
+
+```
+
+
+$\textbf{Linear Regression}$
+
+
+
+
+```{r}
+model <- lm(y ~ X0 + X1, data = train)
+summary(model)
+pred <- predict(model, newdata = test, type = "response")
+```
+```{r}
+#Prediction of the values X0=2.75,X1=1.5 
+X0=2.75
+X1=1.5
+values=data.frame(X0,X1)
+pred <- predict(model, newdata =values, type = "response")
+pred
+```
+
+```{r}
+pred <- predict(model, newdata =test, type = "response")
+pred
+```
+```{r}
+```
+If we do pred>1  than y=1 else y=0
+
+```{r}
+prob_pred <- ifelse(pred >1,1, 0)
+prob_pred
+```
+
+
+
+```{r}
+library(caret)
+confusionMatrix(factor(prob_pred), factor(test$y), positive = as.character(1))
+  # pr create prediction between the estimate and the real values
+pr <- prediction(prob_pred,test$y)
+  # plot ruce curve   
+perf <- performance(pr,measure = "tpr",x.measure = "fpr")
+ 
+```
+```{r}
+ plot(perf)
+  # Return roc curve values auc(test$y,prob_pred)
+```
+```{r}
+auc(test$y,prob_pred)
+ 
+```
+
+
+
+```{r}
+ logistic_model <- glm (y ~., data = train, family ="binomial")
+```
+
+
+```{r}
+ pred <- predict(logistic_model, newdata = test, type = "response")
+```
+
+
+```{r}
+ # prob_pred to return two values 0 or 1 if pred> 0.5 then prob_pred is 1 else is 0
+  prob_pred <- ifelse(pred > 0.5, 1, 0)
+  #Prediction of the values X0=2.75,X1=1.5 
+  X0=2.75
+  X1=1.5
+  values=data.frame(X0,X1)
+  pred <- predict(model, newdata =values, type = "response")
+  pred
+
+```
+
+
+```{r}
+ prob_pred
+```
+
+
+
+```{r}
+  library(caret)
+  pred <- predict(logistic_model, newdata =test, type = "response")
+   prob_pred <- ifelse(pred >0.5, 1, 0)
+   pred
+   prob_pred
+  
+```
+
+
+```{r}
+  confusionMatrix(factor(prob_pred), factor(test$y), positive = as.character(1))
+
+```
+
+
+```{r}
+ pr <- prediction(prob_pred,test$y)
+  # plot ruce curve   
+  perf <- performance(pr,measure = "tpr",x.measure = "fpr")
+  plot(perf)
+```
+
+
+```{r}
+auc(test$y,prob_pred)
+```
